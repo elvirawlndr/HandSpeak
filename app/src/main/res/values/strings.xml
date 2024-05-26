@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">HandSpeak</string>
+    <string name="article">Article</string>
+    <string name="scan">Scan</string>
+    <string name="result">Result :</string>
+    <string name="upload">Upload</string>
+    <string name="article_title">Pemanfaatan Artificial Intelligence (AI) dalam Mendeteksi Simbol Sistem Isyarat Bahasa Indonesia (SIBI)</string>
+    <string name="example_article">Perkembangan teknologi pada era digital telah berkembang pesat. AI (Artificial Intelligence) yang telah ramai di perbincangkan oleh dunia dapat menjadi pusat teknologi di ciptakan. AI (Artificial Intelligence) yang dimanfaatkan secara bijak dan dikembangkan terus menerus akan mempermudah berbagai macam kegiatan manusia. Banyak dampak positif yang dirasakan dengan adanya AI yang telah masuk pada kehidupan manusia saat ini.
+        \nIde-ide teknologi berkembang dari mana saja, dari tempat kecil hingga tempat yang besar. Banyak pula perguruan tinggi berbasis teknologi yang berlomba-lomba membuat perangkat canggih yang akan berguna di masa depan dengan baik. Seperti yang telah dikembangkan di universitas dinamika (undika), </string>
+    <string name="see_more">See More</string>
+    <string name="analyze">Analyze</string>
+    <string name="history">History</string>
+
+
+</resources>
