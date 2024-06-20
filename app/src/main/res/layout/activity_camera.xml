@@ -2,9 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CameraActivity">
+    tools:context=".view.CameraActivity">
 
     <TextView
         android:id="@+id/tv_scan"
@@ -16,46 +17,54 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/scan" />
+        android:text="@string/scan" />
 
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="490dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_scan" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_scan" >
 
+    </androidx.camera.view.PreviewView>
 
     <TextView
         android:id="@+id/tvResult1"
-        android:layout_width="wra"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:background="@color/pink"
         android:fontFamily="@font/nunito_extrabold"
-        android:padding="4dp"
+        android:paddingStart="18dp"
+        android:paddingTop="22dp"
+        android:text="@string/result"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/viewFinder"
-        tools:text="@string/result" />
+        app:layout_constraintTop_toBottomOf="@+id/viewFinder" />
 
     <TextView
         android:id="@+id/tvResultAnalyze1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="85dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="10dp"
         android:fontFamily="@font/nunito_extrabold"
+        android:gravity="center"
         android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/tvResult1"
+        app:layout_constraintBottom_toBottomOf="@+id/tvResult1"
+        app:layout_constraintEnd_toEndOf="@+id/tvResult1"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tvResult1"
         app:layout_constraintTop_toBottomOf="@+id/viewFinder"
+        app:layout_constraintVertical_bias="1.0"
         tools:text="@string/result" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -67,10 +76,37 @@
         android:layout_marginBottom="48dp"
         android:backgroundTint="@color/purple"
         android:clickable="true"
+        android:contentDescription="@string/upload"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvResult1"
         app:srcCompat="@drawable/gallery"
         app:tint="@color/pink" />
+
+    <TextView
+        android:id="@+id/tvInferenceTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/nunito_semibold"
+        android:textColor="@color/purple"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.93"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_scan"
+        tools:text="Inference Time" />
+
+    <ImageView
+        android:id="@+id/switchCamera"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvInferenceTime"
+        app:layout_constraintEnd_toEndOf="@+id/viewFinder"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:srcCompat="@drawable/baseline_cameraswitch_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,9 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:name="com.yalantis.ucrop.UCropActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UploadActivity">
+        tools:context=".view.UploadActivity">
 
     <TextView
         android:id="@+id/tvUpload"
@@ -18,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:text="@string/upload" />
 
+
     <ImageView
         android:id="@+id/imgUpload"
         android:layout_width="match_parent"
@@ -29,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvUpload"
-        tools:src="@tools:sample/avatars" />
+        app:srcCompat="@drawable/baseline_image_search_24" />
 
     <TextView
         android:id="@+id/tvResult"
@@ -53,7 +56,7 @@
         android:fontFamily="@font/nunito_extrabold"
         app:layout_constraintStart_toEndOf="@+id/tvResult"
         app:layout_constraintTop_toBottomOf="@+id/imgUpload"
-        android:text="@string/result" />
+        tools:text="@string/result" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingGalleryButton"
@@ -79,15 +82,16 @@
         android:layout_marginEnd="96dp"
         android:layout_marginBottom="44dp"
         android:height="62dp"
+        android:backgroundTint="@color/purple"
         android:fontFamily="@font/nunito_extrabold"
         android:text="@string/analyze"
         android:textColor="@color/pink"
         android:textSize="20sp"
-        android:backgroundTint="@color/purple"
+        android:textAlignment="center"
+        app:cornerRadius="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/floatingGalleryButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

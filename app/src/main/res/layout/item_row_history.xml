@@ -11,7 +11,7 @@
     android:layout_marginEnd="24dp"
     android:layout_marginBottom="4dp"
     card_view:cardElevation="4dp"
-    card_view:cardCornerRadius="24dp">
+    card_view:cardCornerRadius="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

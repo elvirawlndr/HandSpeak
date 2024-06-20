@@ -11,7 +11,7 @@
     android:layout_marginEnd="24dp"
     android:layout_marginBottom="4dp"
     card_view:cardElevation="4dp"
-    card_view:cardCornerRadius="24dp">
+    card_view:cardCornerRadius="20dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -44,6 +44,7 @@
             tools:text="@string/article_title" />
 
         <TextView
+            android:id="@+id/tv_see_more"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -58,7 +59,7 @@
             card_view:layout_constraintStart_toEndOf="@+id/img_item_article"
             card_view:layout_constraintTop_toBottomOf="@+id/tv_item_title"
             card_view:layout_constraintVertical_bias="1.0"
-            tools:text="@string/see_more" />
+            android:text="@string/see_more" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

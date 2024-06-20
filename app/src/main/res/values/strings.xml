@@ -10,6 +10,12 @@
     <string name="see_more">See More</string>
     <string name="analyze">Analyze</string>
     <string name="history">History</string>
+    <string name="image_classifier_failed">Image classifier failed to initialize. See error logs for details</string>
+    <string name="name_app">HandSpeak</string>
+    <string name="select_sign_language">Select Sign Language</string>
+    <string name="sibi">Sibi</string>
+    <string name="bisindo">Bisindo</string>
+    <string name="question_menu">Choose which sign language you want to detect ?</string>
 
 
 </resources>
