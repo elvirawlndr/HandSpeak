@@ -1,4 +1,4 @@
-package com.dicoding.picodiploma.storyspace.view
+package com.elvira.handspeak
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

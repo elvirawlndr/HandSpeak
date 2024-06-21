@@ -14,6 +14,7 @@ import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 
+// for detection using tflite
 class ImageClassifierHelperGallery(
     private var threshold: Float = 0.1f,
     private var maxResults: Int = 1,
@@ -21,7 +22,7 @@ class ImageClassifierHelperGallery(
     val classifierListener: ClassifierListener?
 ) {
     private var imageClassifier: ImageClassifier? = null
-    private var modelName: String = "mobilenet_v1.tflite"
+    private var modelName: String = "ml_model_SIBI_rgb.tflite"
 
     init {
         setupImageClassifier()
@@ -33,7 +34,6 @@ class ImageClassifierHelperGallery(
     }
 
     private fun setupImageClassifier() {
-        // TODO: Menyiapkan Image Classifier untuk memproses gambar.
         val optionsBuilder = ImageClassifier.ImageClassifierOptions.builder()
             .setScoreThreshold(threshold)
             .setMaxResults(maxResults)
@@ -54,7 +54,6 @@ class ImageClassifierHelperGallery(
     }
 
     fun classifyStaticImage(imageUri: Uri) {
-        // TODO: mengklasifikasikan imageUri dari gambar statis.
         if (imageClassifier == null) {
             setupImageClassifier()
         }

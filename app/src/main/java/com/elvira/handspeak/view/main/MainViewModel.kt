@@ -23,7 +23,7 @@ class MainViewModel : ViewModel() {
 
     private fun getArticles() {
         viewModelScope.launch {
-            val client = ApiConfig.getApiService().getArticle()
+            val client = ApiConfig.getStorageApiService().getArticle()
             client.enqueue(object : Callback<ArticleResponse> {
                 override fun onResponse(
                     call: Call<ArticleResponse>,

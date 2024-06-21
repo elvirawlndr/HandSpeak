@@ -16,6 +16,8 @@
     <string name="sibi">Sibi</string>
     <string name="bisindo">Bisindo</string>
     <string name="question_menu">Choose which sign language you want to detect ?</string>
+    <string name="sibi_success">Sibi Model is predicted successfully</string>
+    <string name="bisindo_success">Bisindo Model is predicted successfully</string>
 
 
 </resources>

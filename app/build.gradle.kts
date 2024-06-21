@@ -22,6 +22,7 @@ android {
         dataBinding = true
         viewBinding = true
         mlModelBinding = true
+        buildConfig = true
     }
 
     buildTypes {

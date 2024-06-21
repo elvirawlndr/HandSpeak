@@ -1,6 +1,8 @@
 package com.elvira.handspeak.view
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -10,19 +12,35 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.elvira.handspeak.R
+import com.elvira.handspeak.data.response.PredictSibiResponse
+import com.elvira.handspeak.data.retrofit.ApiConfig
 import com.elvira.handspeak.databinding.ActivityCameraBinding
 import com.elvira.handspeak.helper.ImageClassifierHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.tensorflow.lite.task.vision.classifier.Classifications
+import retrofit2.Call
+import retrofit2.Callback
+import toBitmap
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
 
 class CameraActivity : AppCompatActivity() {
@@ -58,9 +76,9 @@ class CameraActivity : AppCompatActivity() {
 
     private fun initializeImageClassifier(modelType: String) {
         val modelName = when (modelType) {
-            "SIBI" -> "mobilenet_v1.tflite"
+            "SIBI" -> "ml_model_SIBI_rgb.tflite"
             "BISINDO" -> "ml_model_BISINDO_tuned.tflite"
-            else -> {"ml_model_SIBI_tuned.tflite"}
+            else -> {"ml_model_SIBI_rgb.tflite"}
         }
 
         imageClassifierHelper = ImageClassifierHelper(
@@ -81,7 +99,7 @@ class CameraActivity : AppCompatActivity() {
                                 val displayResult =
                                     sortedCategories.joinToString("\n") {
                                         "${it.label} "
-                                            .format(it.score).trim()
+                                            //.format(it.score).trim()
                                     }
 
                                 binding.tvResultAnalyze1.text = displayResult
@@ -96,6 +114,7 @@ class CameraActivity : AppCompatActivity() {
             }
         )
         imageClassifierHelper.updateModelName(modelName)
+        startCamera()
 
     }
 
@@ -121,6 +140,15 @@ class CameraActivity : AppCompatActivity() {
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
             }
+
+            /*val imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()*/
+
+            /*imageAnalyzer.setAnalyzer(ContextCompat.getMainExecutor(this)) { imageProxy ->
+                processImage(imageProxy)
+            }*/
+
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
@@ -138,6 +166,66 @@ class CameraActivity : AppCompatActivity() {
                 Log.e(TAG, "startCamera: ${exc.message}")
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    @OptIn(ExperimentalGetImage::class)
+    private fun processImage(image: ImageProxy) {
+        val mediaImage: Image? = image.image
+        if (mediaImage != null) {
+            val bitmap = mediaImage.toBitmap()
+            image.close()
+
+            // Convert bitmap to JPEG and send it to the backend
+            lifecycleScope.launch(Dispatchers.IO) {
+                val response = sendImageToBackend(bitmap)
+                response?.let {
+                    runOnUiThread {
+                        binding.tvResultAnalyze1.text = it
+                        binding.tvInferenceTime.text = it
+                    }
+                }
+            }
+        }
+    }
+
+    private fun sendImageToBackend(bitmap: Bitmap): String? {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val byteArray = stream.toByteArray()
+
+        val requestBody: RequestBody = byteArray.toRequestBody("image/jpeg".toMediaType())
+        val multipartBody: MultipartBody.Part =
+            MultipartBody.Part.createFormData("photo", "image.jpg", requestBody)
+        var result: String? = null
+
+        lifecycleScope.launch {
+            try {
+                val apiService = ApiConfig.getHandspeakApiService()
+                val response = apiService.uploadSibiImage(multipartBody)
+
+                response.enqueue(object : Callback<PredictSibiResponse> {
+                    override fun onResponse(
+                        call: Call<PredictSibiResponse>,
+                        response: retrofit2.Response<PredictSibiResponse>
+                    ) {
+                        result = if (response.isSuccessful) {
+                            val successResponse = response.body()
+                            successResponse?.data?.result ?: "No result"
+                        } else {
+                            "Failed to upload image: ${response.code()} ${response.message()}"
+                        }
+                    }
+
+                    override fun onFailure(call: Call<PredictSibiResponse>, t: Throwable) {
+                        result = "Failed to upload image: ${t.message.toString()}"
+                    }
+
+                })
+            } catch (e: Exception) {
+                result = "Error uploading image: ${e.message}"
+            }
+        }
+        return result
     }
 
     private fun hideSystemUI() {
@@ -180,6 +268,10 @@ class CameraActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         orientationEventListener.disable()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

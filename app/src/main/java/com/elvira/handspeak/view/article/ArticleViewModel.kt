@@ -17,7 +17,7 @@ class ArticleViewModel: ViewModel() {
 
 
     fun getDetailArticle(id: String) {
-        val client = ApiConfig.getApiService().getDetailArticle(id)
+        val client = ApiConfig.getStorageApiService().getDetailArticle(id)
         client.enqueue(object : Callback<DetailArticleResponse> {
             override fun onResponse(
                 call: Call<DetailArticleResponse>,

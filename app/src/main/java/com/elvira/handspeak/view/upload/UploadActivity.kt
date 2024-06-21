@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,18 +15,26 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.elvira.handspeak.R
+import com.elvira.handspeak.data.response.PredictBisindoResponse
+import com.elvira.handspeak.data.response.PredictSibiResponse
+import com.elvira.handspeak.data.retrofit.ApiConfig
 import com.elvira.handspeak.databinding.ActivityUploadBinding
-import com.elvira.handspeak.helper.ImageClassifierHelperGallery
+import com.elvira.handspeak.uriToFile
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.UCropActivity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.tensorflow.lite.task.vision.classifier.Classifications
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 class UploadActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUploadBinding
     private var currentImageUri: Uri? = null
+    private var modelType: String? = null
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -50,6 +58,8 @@ class UploadActivity : AppCompatActivity() {
         binding = ActivityUploadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        modelType = intent.getStringExtra(EXTRA_MODEL_TYPE)
+
         if (!allPermissionsGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
         }
@@ -64,7 +74,12 @@ class UploadActivity : AppCompatActivity() {
 
         binding.buttonAnalyze.setOnClickListener {
             currentImageUri?.let {
-                analyzeImage(it)
+                showLoading(true)
+                if (modelType == "SIBI") {
+                    uploadSibiImage()
+                } else if (modelType == "BISINDO"){
+                    uploadBisindoImage()
+                }
             } ?: run {
                 showToast("Please insert image first")
             }
@@ -119,7 +134,101 @@ class UploadActivity : AppCompatActivity() {
         }
     }
 
-    private fun analyzeImage(uri: Uri) {
+    private fun uploadSibiImage() {
+        currentImageUri?.let { uri ->
+            val imageFile = uriToFile(uri, this)
+            Log.d("Image Classification File", "showImage: ${imageFile.path}")
+            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                "photo",
+                imageFile.name,
+                requestImageFile
+            )
+            lifecycleScope.launch {
+                try {
+                    val apiService = ApiConfig.getHandspeakApiService()
+                    val response = apiService.uploadSibiImage(multipartBody)
+
+                    response.enqueue(object : Callback<PredictSibiResponse> {
+                        override fun onResponse(
+                            call: Call<PredictSibiResponse>,
+                            response: Response<PredictSibiResponse>
+                        ) {
+                            showLoading(false)
+                            if (response.isSuccessful) {
+                                val successResponse = response.body()
+                                successResponse?.let {
+                                    binding.tvResultAnalyze.text = it.data?.result
+                                    showToast(getString(R.string.sibi_success))
+                                }
+                            } else {
+                                showToast("Failed to upload image: ${response.code()} ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<PredictSibiResponse>, t: Throwable) {
+                            showLoading(false)
+                            showToast("Failed to upload image: ${t.message.toString()}")
+                        }
+
+                    })
+                } catch (e: Exception) {
+                    showLoading(false)
+                    showToast("Error uploading image: ${e.message}")
+                }
+            }
+        }
+
+    }
+
+    private fun uploadBisindoImage() {
+        currentImageUri?.let { uri ->
+            val imageFile = uriToFile(uri, this)
+            Log.d("Image Classification File", "showImage: ${imageFile.path}")
+            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                "photo",
+                imageFile.name,
+                requestImageFile
+            )
+            lifecycleScope.launch {
+                try {
+                    val apiService = ApiConfig.getHandspeakApiService()
+                    val response = apiService.uploadBisindoImage(multipartBody)
+
+                    response.enqueue(object : Callback<PredictBisindoResponse> {
+                        override fun onResponse(
+                            call: Call<PredictBisindoResponse>,
+                            response: Response<PredictBisindoResponse>
+                        ) {
+                            showLoading(false)
+                            if (response.isSuccessful) {
+                                val successResponse = response.body()
+                                successResponse?.let {
+                                    binding.tvResultAnalyze.text = it.data?.result
+                                    showToast(getString(R.string.bisindo_success))
+                                }
+                            } else {
+                                showToast("Failed to upload image: ${response.code()} ${response.message()}")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<PredictBisindoResponse>, t: Throwable) {
+                            showLoading(false)
+                            showToast("Failed to upload image: ${t.message.toString()}")
+                        }
+
+                    })
+                } catch (e: Exception) {
+                    showLoading(false)
+                    showToast("Error uploading image: ${e.message}")
+                }
+            }
+        }
+    }
+
+    // for detection using .tflite model
+    /*private fun analyzeImage(uri: Uri) {
         val imageClassifierHelper = ImageClassifierHelperGallery(
             context = this,
             classifierListener = object : ImageClassifierHelperGallery.ClassifierListener {
@@ -138,6 +247,7 @@ class UploadActivity : AppCompatActivity() {
 
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     updateUI(displayResult)
+                                    //uploadImage()
                                 }
                             }
                         }
@@ -145,19 +255,24 @@ class UploadActivity : AppCompatActivity() {
                 }
             }
         )
-        imageClassifierHelper.classifyStaticImage(uri)
+        //imageClassifierHelper.classifyStaticImage(uri)
     }
 
     private fun updateUI(result: String) {
         val resultTextView: TextView = findViewById(R.id.tvResultAnalyze)
         resultTextView.text = "$result"
-    }
+    }*/
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
     companion object {
         private const val REQUIRED_PERMISSION = Manifest.permission.READ_MEDIA_IMAGES
+        const val EXTRA_MODEL_TYPE = "EXTRA_MODEL_TYPE"
     }
 }
